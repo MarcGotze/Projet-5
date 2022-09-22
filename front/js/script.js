@@ -14,7 +14,7 @@ function productsGet() {
   function parse(products) {
     const itemsEl = document.querySelector('#items');
   
-  //Boucle avec construction de blocs dans le HTML + récupération des données dans le tableau de l'API  
+  //Boucle avec construction de blocs dans le DOM (HTML) + récupération des données dans le tableau de l'API  
     products.forEach((product) => {
       const a = document.createElement('a');
       a.href = `./product.html?id=${product._id}`;

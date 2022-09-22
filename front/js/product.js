@@ -35,7 +35,7 @@ function parse(product) {
     //Construction de la description
     let description = document.querySelector('#description');
     description.innerText = `${product.description}`;
-
+    
     //Boucle ajout des couleurs dans le menu déroulant
     let color = document.querySelector('#colors');
     for (let i of product.colors) {
@@ -43,4 +43,25 @@ function parse(product) {
     }
   }
 
-  productGet();
+productGet();
+
+//Récupération de la couleur choisie par l'utilisateur
+const colors = document.getElementById("colors");
+let selectedColors = "";
+
+colors.addEventListener("change", function() {
+  let selectedColors = colors.value;
+  console.log(selectedColors);
+});
+
+//Bouton "Ajouter au panier"
+let cart = './cart.html';
+
+document.querySelector('#addToCart').addEventListener('click', function(e) {
+  e.preventDefault();
+  if (selectedColors === ""){
+     alert("Veuillez selectionner une couleur");
+  } else {
+    window.location = cart;
+  }
+});
