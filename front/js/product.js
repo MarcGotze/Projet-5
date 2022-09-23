@@ -50,18 +50,48 @@ const colors = document.getElementById("colors");
 let selectedColors = "";
 
 colors.addEventListener("change", function() {
-  let selectedColors = colors.value;
+  selectedColors = colors.value;
   console.log(selectedColors);
 });
 
-//Bouton "Ajouter au panier"
-let cart = './cart.html';
+//Récupération de la quantité choisie par l'utilisateur
+const quantity = document.getElementById("quantity");
+let selectedQty = 0;
+
+quantity.addEventListener('input', function(e) {
+  selectedQty = quantity.value;
+  console.log(selectedQty);
+});
+
+//Fonction de sauvegarde dans le LocalStorage
+function saveBasket(basket) {
+  localStorage.setItem("basket", JSON.stringify(basket));
+}
+
+function getBasket () {
+  let basket = localStorage.getItem("basket");
+  if (basket == null) {
+    return [];
+  } else {
+    return JSON.parse(basket);
+  }
+}
+
+function addBasket(productId, productQty, productColor) {
+  let basket = getBasket();
+  basket.push(productId, productQty, productColor);
+  saveBasket(basket);
+}
+
+//Bouton "Ajouter au panier" et sauvegarde du panier
+const cart = './cart.html';
 
 document.querySelector('#addToCart').addEventListener('click', function(e) {
   e.preventDefault();
-  if (selectedColors === ""){
-     alert("Veuillez selectionner une couleur");
+  if (selectedColors === "" || selectedQty === '0'){
+     alert("Veuillez selectionner une couleur et une quantité");
   } else {
+    addBasket(id, selectedQty, selectedColors);
     window.location = cart;
   }
 });
