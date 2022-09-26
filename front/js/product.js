@@ -59,7 +59,8 @@ const quantity = document.getElementById("quantity");
 let selectedQty = 0;
 
 quantity.addEventListener('input', function(e) {
-  selectedQty = quantity.value;
+  qty = quantity.value;
+  selectedQty = parseInt(qty);
   console.log(selectedQty);
 });
 
@@ -68,6 +69,7 @@ function saveBasket(basket) {
   localStorage.setItem("basket", JSON.stringify(basket));
 }
 
+//Serialisation du contenu du panier
 function getBasket () {
   let basket = localStorage.getItem("basket");
   if (basket == null) {
@@ -77,9 +79,15 @@ function getBasket () {
   }
 }
 
-function addBasket(productId, productQty, productColor) {
+//Ajout d'articles au panier 
+function addBasket(product) {
   let basket = getBasket();
-  basket.push(productId, productQty, productColor);
+  let foundProduct = basket.find(p => p.id == product.id && p.selectedColors == product.selectedColors)
+  if (foundProduct != undefined) {
+    foundProduct.selectedQty += selectedQty;
+  } else {
+    basket.push(product);
+  }
   saveBasket(basket);
 }
 
@@ -91,7 +99,7 @@ document.querySelector('#addToCart').addEventListener('click', function(e) {
   if (selectedColors === "" || selectedQty === '0'){
      alert("Veuillez selectionner une couleur et une quantité");
   } else {
-    addBasket(id, selectedQty, selectedColors);
+    addBasket({id, selectedQty, selectedColors});
     window.location = cart;
   }
 });
