@@ -93,10 +93,10 @@ function addBasket(product) {
 
 //Bouton "Ajouter au panier" et sauvegarde du panier
 const cart = './cart.html';
-
+console.log(selectedQty);
 document.querySelector('#addToCart').addEventListener('click', function(e) {
   e.preventDefault();
-  if (selectedColors === "" || selectedQty === '0'){
+  if (selectedColors === "" || selectedQty === 0 ){
      alert("Veuillez selectionner une couleur et une quantité");
   } else {
     addBasket({id, selectedQty, selectedColors});
