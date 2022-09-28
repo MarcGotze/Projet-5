@@ -1,10 +1,20 @@
 const api = "http://localhost:3000/api/products";
+let totalQty = 0;
+let totalPrice = 0;
 
 fetch(api)
       .then((response) => response.json())
       .then((response) => {
         generateBasket(response);
     });
+
+function sumQty(a, b) {
+    return a += b;
+}    
+
+function sumPrice(a, b, c) {
+    return a += b * c;
+}    
 
 function generateBasket(allItems) {
     const itemsEl = document.querySelector('#cart__items');
@@ -46,8 +56,18 @@ function generateBasket(allItems) {
                     </div>
                 </div>
             </article>
-    `;
+    `; 
+        //Calcul des sommes du panier
+        const totalQtySelector = document.querySelector('#totalQuantity');
+        totalQty = sumQty(totalQty, product.selectedQty);
+        totalQtySelector.innerHTML = `${totalQty}`;
+
+        const totalPriceSelector = document.querySelector('#totalPrice');
+        totalPrice = sumPrice(totalPrice, fullProduct.price, product.selectedQty);
+        totalPriceSelector.innerHTML = `${totalPrice}`;
+
         itemsEl.appendChild(a);
         });
-
 }
+
+        
