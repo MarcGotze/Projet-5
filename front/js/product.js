@@ -28,6 +28,9 @@ function parse(product) {
   let title = document.querySelector("#title");
   title.innerText = `${product.name}`;
 
+  let titleTab = document.querySelector("title");
+  titleTab.innerText = `${product.name}`;
+
   //Construction du prix
   let price = document.querySelector("#price");
   price.innerText = `${product.price}`;

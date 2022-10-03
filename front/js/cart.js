@@ -1,7 +1,9 @@
 const api = "http://localhost:3000/api/products";
+const apiOrder = "http://localhost:3000/api/products/order";
 let totalQty = 0;
 let totalPrice = 0;
 
+//Récupération de l'API
 fetch(api)
   .then((response) => response.json())
   .then((response) => {
@@ -26,21 +28,19 @@ function getBasket() {
 //Suppresion d'un article
 function removeFromBasket(product) {
   let basket = getBasket();
-  basket = basket.filter((p) => p.id != product.id);
+  basket = basket.filter((p) => p.id != product);
   saveBasket(basket);
+  window.location.reload();
 }
 
 //Changement de la quantité d'un article
 function changeQuantity(product, quantity) {
   let basket = getBasket();
-  let foundProduct = basket.find((p) => p.id == product.id);
+  let foundProduct = basket.find((p) => p.id == product);
   if (foundProduct != undefined) {
-    foundProduct.quantity += quantity;
-    if (foundProduct.quantity <= 0) {
-      removeFromBasket(foundProduct);
-    } else {
-      saveBasket(basket);
-    }
+    selectedQty = foundProduct.selectedQty;
+    foundProduct.selectedQty = parseInt(quantity);
+    saveBasket(basket);
   }
 }
 
@@ -71,25 +71,21 @@ function generateBasket(allItems) {
     const a = document.createElement("a");
     a.innerHTML = `
         
-        <article class="cart__item" data-id="${product.id}" data-color="${
-      product.selectedColors
-    }">
+        <article class="cart__item" data-id="${product.id}" data-color="${product.selectedColors}">
                 <div class="cart__item__img">
-                    <img src="${fullProduct.imageUrl}" alt="${
-      fullProduct.altTxt
-    }">
+                    <img src="${fullProduct.imageUrl}" alt="${fullProduct.altTxt}">
                 </div>
 
                 <div class="cart__item__content">
                     <div class="cart__item__content__description">
                     <h2>${fullProduct.name}</h2>
                     <p>${product.selectedColors}</p>
-                    <p>${fullProduct.price * product.selectedQty} €</p>
+                    <p>${fullProduct.price} €</p>
                     </div>
                     <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
                         <p>Qté : ${product.selectedQty}</p>
-                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="0">
+                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.selectedQty}">
                     </div>
                     <div class="cart__item__content__settings__delete">
                         <p class="deleteItem">Supprimer</p>
@@ -110,14 +106,124 @@ function generateBasket(allItems) {
     itemsEl.appendChild(a);
   });
 
+  //Input changement du nombre de produits
   const quantityInputs = document.querySelectorAll(".itemQuantity");
 
   quantityInputs.forEach((input) => {
+    const inputItem = input.closest(".cart__item");
     input.addEventListener("change", () => {
-      console.log(cartItem);
       const quantity = input.value;
       const productId = inputItem.dataset.id;
       changeQuantity(productId, quantity);
+      window.location.reload();
     });
+  });
+
+  //Supression du produit
+  const deleteInputs = document.querySelectorAll(".deleteItem");
+
+  deleteInputs.forEach((input) => {
+    const inputItem = input.closest(".cart__item");
+    input.addEventListener("click", () => {
+      const productId = inputItem.dataset.id;
+      removeFromBasket(productId);
+    });
+  });
+
+  //Formulaire
+  const order = document.querySelector("#order");
+
+  let contact = {
+    firstName: "prenom",
+    lastName: "nom",
+    address: "adresse",
+    city: "ville",
+    email: "email",
+  };
+
+  console.log(productID);
+
+  function validate() {
+    const regExEmail =
+      /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
+    const regExString = /^[a-zA-Z\-]+$/;
+    const regExAddress = /^[a-zA-Z0-9]+$/;
+
+    const userFirstName = document.querySelector("#firstName").value;
+    const userLastName = document.querySelector("#lastName").value;
+    const userAddress = document.querySelector("#address").value;
+    const userCity = document.querySelector("#city").value;
+    const userEmail = document.querySelector("#email").value;
+
+    firstNameResult = regExString.test(userFirstName);
+    lastNameResult = regExString.test(userLastName);
+    addressResult = regExAddress.test(userAddress);
+    cityResult = regExString.test(userCity);
+    emailResult = regExEmail.test(userEmail);
+
+    if (!firstNameResult) {
+      document.getElementById("firstNameErrorMsg").innerHTML =
+        "Veuillez saisir un prénom valide";
+    }
+
+    if (!lastNameResult) {
+      document.getElementById("lastNameErrorMsg").innerHTML =
+        "Veuillez saisir un nom valide";
+    }
+
+    if (!addressResult) {
+      document.getElementById("addressErrorMsg").innerHTML =
+        "Veuillez saisir une adresse valide";
+    }
+
+    if (!cityResult) {
+      document.getElementById("cityErrorMsg").innerHTML =
+        "Veuillez saisir une ville valide";
+    }
+
+    if (!emailResult) {
+      document.getElementById("emailErrorMsg").innerHTML =
+        "Veuillez saisir un email valide";
+    }
+
+    if (
+      firstNameResult &&
+      lastNameResult &&
+      addressResult &&
+      cityResult &&
+      emailResult
+    ) {
+      const confirmation = "./confirmation.html";
+      contact.firstName = userFirstName;
+      contact.lastName = userLastName;
+      contact.address = userAddress;
+      contact.city = userCity;
+      contact.email = userEmail;
+
+      /*
+      let response = fetch(apiOrder, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contact),
+      });
+
+      console.log(basket);
+      let productID = [];
+      basket.forEach((element) => {
+        productID.push(element.id);
+      });
+
+      let result = response;
+      console.log(result); */
+
+      //window.location = confirmation;
+    }
+  }
+
+  order.addEventListener("click", (e) => {
+    e.preventDefault();
+    validate();
   });
 }
