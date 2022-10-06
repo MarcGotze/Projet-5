@@ -30,7 +30,6 @@ function removeFromBasket(product) {
   let basket = getBasket();
   basket = basket.filter((p) => p.id != product);
   saveBasket(basket);
-  window.location.reload();
 }
 
 //Changement de la quantité d'un article
@@ -94,6 +93,7 @@ function generateBasket(allItems) {
                 </div>
             </article>
     `;
+
     //Calcul des sommes du panier
     const totalQtySelector = document.querySelector("#totalQuantity");
     totalQty = sumQty(totalQty, product.selectedQty);
@@ -108,6 +108,9 @@ function generateBasket(allItems) {
 
   //Input changement du nombre de produits
   const quantityInputs = document.querySelectorAll(".itemQuantity");
+  const e = document.querySelectorAll(
+    ".cart__item__content__settings__quantity"
+  );
 
   quantityInputs.forEach((input) => {
     const inputItem = input.closest(".cart__item");
@@ -115,7 +118,6 @@ function generateBasket(allItems) {
       const quantity = input.value;
       const productId = inputItem.dataset.id;
       changeQuantity(productId, quantity);
-      window.location.reload();
     });
   });
 
@@ -127,6 +129,7 @@ function generateBasket(allItems) {
     input.addEventListener("click", () => {
       const productId = inputItem.dataset.id;
       removeFromBasket(productId);
+      inputItem.remove();
     });
   });
 
@@ -140,8 +143,6 @@ function generateBasket(allItems) {
     city: "ville",
     email: "email",
   };
-
-  console.log(productID);
 
   function validate() {
     const regExEmail =
@@ -200,8 +201,7 @@ function generateBasket(allItems) {
       contact.city = userCity;
       contact.email = userEmail;
 
-      /*
-      let response = fetch(apiOrder, {
+      /* let response = fetch(apiOrder, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,9 +216,9 @@ function generateBasket(allItems) {
       });
 
       let result = response;
-      console.log(result); */
+      console.log(result);
 
-      //window.location = confirmation;
+      //window.location = confirmation;*/
     }
   }
 
