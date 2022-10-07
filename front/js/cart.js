@@ -18,6 +18,7 @@ function saveBasket(basket) {
 //Serialisation du contenu du panier
 function getBasket() {
   let basket = localStorage.getItem("basket");
+
   if (basket == null) {
     return [];
   } else {
@@ -33,12 +34,16 @@ function removeFromBasket(product) {
 }
 
 //Changement de la quantité d'un article
-function changeQuantity(product, quantity) {
+function changeQuantity(product, quantity, quantityInner) {
   let basket = getBasket();
   let foundProduct = basket.find((p) => p.id == product);
+  let qtyInnerTxt = quantityInner.querySelector('p');
+  
+
   if (foundProduct != undefined) {
     selectedQty = foundProduct.selectedQty;
     foundProduct.selectedQty = parseInt(quantity);
+    qtyInnerTxt.innerHTML = `<p>Qté : ${foundProduct.selectedQty}</p>`;
     saveBasket(basket);
   }
 }
@@ -108,16 +113,16 @@ function generateBasket(allItems) {
 
   //Input changement du nombre de produits
   const quantityInputs = document.querySelectorAll(".itemQuantity");
-  const e = document.querySelectorAll(
-    ".cart__item__content__settings__quantity"
-  );
 
   quantityInputs.forEach((input) => {
     const inputItem = input.closest(".cart__item");
+    const qtyInner = input.closest(".cart__item__content__settings__quantity");
+
     input.addEventListener("change", () => {
       const quantity = input.value;
       const productId = inputItem.dataset.id;
-      changeQuantity(productId, quantity);
+
+      changeQuantity(productId, quantity, qtyInner);
     });
   });
 
@@ -126,6 +131,7 @@ function generateBasket(allItems) {
 
   deleteInputs.forEach((input) => {
     const inputItem = input.closest(".cart__item");
+
     input.addEventListener("click", () => {
       const productId = inputItem.dataset.id;
       removeFromBasket(productId);
