@@ -2,8 +2,7 @@ const api = "http://localhost:3000/api/products";
 const apiOrder = "http://localhost:3000/api/products/order";
 const totalQtySelector = document.querySelector("#totalQuantity");
 const totalPriceSelector = document.querySelector("#totalPrice");
-let totalQty = 0;
-let totalPrice = 0;
+let articleItem = {};
 let basket;
 
 //Récupération de l'API
@@ -18,7 +17,7 @@ function saveBasket(basket) {
   localStorage.setItem("basket", JSON.stringify(basket));
 }
 
-//Serialisation du contenu du panier
+//Désérialisation du contenu du panier
 function getBasket() {
   let basket = localStorage.getItem("basket");
 
@@ -51,14 +50,28 @@ function changeQuantity(product, quantity, quantityInner) {
 }
 
 //Calcul des totaux
-function total(qty, price) {
-  totalQty = totalQty += qty;
-  totalPrice = totalPrice += price * qty;
+function addToTotal(product, qty) {
+    if(qty){
+        qty = parseInt(qty, 10);
+    }
+    articleItem[product._id] = { qty, price: product.price};
 
-  totalQtySelector.innerHTML = `${totalQty}`;
-  totalPriceSelector.innerHTML = `${totalPrice}`;
+    calculateTotal();
 }
 
+function calculateTotal(){
+    let total = 0;
+    let qty = 0;
+    Object.values(articleItem).forEach(product => {
+        total += product.qty * product.price;
+        qty += product.qty;
+    });
+    
+    totalQtySelector.innerText = qty;
+    totalPriceSelector.innerText = total;
+}
+
+//Génération du panier
 function generateBasket(allItems) {
   const itemsEl = document.querySelector("#cart__items");
   let basketUpdate;
@@ -101,23 +114,14 @@ function generateBasket(allItems) {
             </article>
     `;
 
-    total(product.selectedQty, fullProduct.price);
-    itemsEl.appendChild(a);
-  });
-
-  //Input changement du nombre de produits
-  const quantityInputs = document.querySelectorAll(".itemQuantity");
-
-  quantityInputs.forEach((input) => {
-    const inputItem = input.closest(".cart__item");
-    const qtyInner = input.closest(".cart__item__content__settings__quantity");
-
-    input.addEventListener("change", () => {
-      const quantity = input.value;
-      const productId = inputItem.dataset.id;
-      totalQtySelector.innerHTML = `${totalQty}`;
-      changeQuantity(productId, quantity, qtyInner);
+    const qtyInner = a.querySelector('.cart__item__content__settings__quantity');
+    a.querySelector('input').addEventListener('change', (event) => {
+        changeQuantity(product.id, event.target.value, qtyInner);
+        addToTotal(fullProduct, event.target.value);
     });
+
+    addToTotal(fullProduct, product.selectedQty);
+    itemsEl.appendChild(a);
   });
 
   //Supression du produit
