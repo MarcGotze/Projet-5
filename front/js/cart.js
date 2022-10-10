@@ -38,12 +38,12 @@ function changeQuantity(product, quantity, quantityInner) {
   let basket = getBasket();
   let foundProduct = basket.find((p) => p.id == product);
   let qtyInnerTxt = quantityInner.querySelector('p');
-  
 
   if (foundProduct != undefined) {
     selectedQty = foundProduct.selectedQty;
     foundProduct.selectedQty = parseInt(quantity);
     qtyInnerTxt.innerHTML = `<p>Qté : ${foundProduct.selectedQty}</p>`;
+
     saveBasket(basket);
   }
 }
@@ -107,7 +107,7 @@ function generateBasket(allItems) {
     const totalPriceSelector = document.querySelector("#totalPrice");
     totalPrice = sumPrice(totalPrice, fullProduct.price, product.selectedQty);
     totalPriceSelector.innerHTML = `${totalPrice}`;
-
+    
     itemsEl.appendChild(a);
   });
 
@@ -201,31 +201,46 @@ function generateBasket(allItems) {
       cityResult &&
       emailResult
     ) {
-      const confirmation = "./confirmation.html";
       contact.firstName = userFirstName;
       contact.lastName = userLastName;
       contact.address = userAddress;
       contact.city = userCity;
       contact.email = userEmail;
 
-      /* let response = fetch(apiOrder, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(contact),
-      });
-
-      console.log(basket);
-      let productID = [];
+      //Récupération des id produits
+      basket = JSON.parse(basket);
+      const productID = [];
       basket.forEach((element) => {
         productID.push(element.id);
       });
 
-      let result = response;
-      console.log(result);
+      let body = {
+        'contact' : contact, 
+        'products': productID
+      }
 
-      //window.location = confirmation;*/
+      //Envoi du panier en confirmation via un POST
+      let orderId = "";
+
+      function orderConfirmation (order) {
+        const confirmation = `./confirmation.html?id=${order}`;
+        window.location = confirmation;
+      }
+      
+      fetch(apiOrder, {
+      method: "POST",
+      headers: {
+        Accept: 'application/json',
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      cache: 'default' 
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        orderId = data.orderId;
+        orderConfirmation(orderId);
+      });
     }
   }
 
