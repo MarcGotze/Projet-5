@@ -157,7 +157,7 @@ let contact = {
 function validate() {
   const regExEmail =
     /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
-  const regExString = /^[a-zA-Zéêëèîïâäçù\-]+$/;
+  const regExString = /^[a-zA-Zéêëèîïâäçùö \-]+$/;
   const regExAddress = /^[0-9]{1,3}[a-zA-Zéêëèîïâäçù ,'-]+$/;
 
   const userFirstName = document.querySelector("#firstName").value;
