@@ -31,6 +31,10 @@ function getBasket() {
 //Suppresion d'un article
 function removeFromBasket(product) {
   let basket = getBasket();
+  delete articleItem[product];
+  
+  calculateTotal();
+
   basket = basket.filter((p) => p.id != product);
   saveBasket(basket);
 }
@@ -49,16 +53,16 @@ function changeQuantity(product, quantity, quantityInner) {
   }
 }
 
-//Calcul des totaux
+//Ajout aux totaux
 function addToTotal(product, qty) {
     if(qty){
         qty = parseInt(qty, 10);
     }
     articleItem[product._id] = { qty, price: product.price};
-
     calculateTotal();
 }
 
+//Calcul des totaux
 function calculateTotal(){
     let total = 0;
     let qty = 0;
@@ -114,6 +118,7 @@ function generateBasket(allItems) {
             </article>
     `;
 
+    //Input quantité
     const qtyInner = a.querySelector('.cart__item__content__settings__quantity');
     a.querySelector('input').addEventListener('change', (event) => {
         changeQuantity(product.id, event.target.value, qtyInner);
@@ -124,12 +129,11 @@ function generateBasket(allItems) {
     itemsEl.appendChild(a);
   });
 
-  //Supression du produit
+  //click supression du produit
   const deleteInputs = document.querySelectorAll(".deleteItem");
 
   deleteInputs.forEach((input) => {
     const inputItem = input.closest(".cart__item");
-
     input.addEventListener("click", () => {
       const productId = inputItem.dataset.id;
       removeFromBasket(productId);
@@ -153,8 +157,8 @@ let contact = {
 function validate() {
   const regExEmail =
     /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
-  const regExString = /^[a-zA-Z\-]+$/;
-  const regExAddress = /^[a-zA-Z0-9]+$/;
+  const regExString = /^[a-zA-Zéêëèîïâäçù\-]+$/;
+  const regExAddress = /^[0-9]{1,3}[a-zA-Zéêëèîïâäçù ,'-]+$/;
 
   const userFirstName = document.querySelector("#firstName").value;
   const userLastName = document.querySelector("#lastName").value;
