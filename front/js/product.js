@@ -64,7 +64,6 @@ let selectedQty = 0;
 quantity.addEventListener("input", function (e) {
   qty = quantity.value;
   selectedQty = parseInt(qty);
-  console.log(selectedQty);
 });
 
 //Fonction de sauvegarde dans le LocalStorage
