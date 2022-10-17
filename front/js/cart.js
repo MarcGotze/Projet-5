@@ -29,21 +29,24 @@ function getBasket() {
 }
 
 //Suppresion d'un article
-function removeFromBasket(product) {
+function removeFromBasket(product, color) {
   let basket = getBasket();
-  delete articleItem[product];
-  
-  calculateTotal();
+
+  delete articleItem[product + color];
 
   basket = basket.filter((p) => p.id != product);
   saveBasket(basket);
+  calculateTotal();
 }
 
 //Changement de la quantité d'un article
-function changeQuantity(product, quantity, quantityInner) {
+function changeQuantity(product, quantity, quantityInner, color) {
   let basket = getBasket();
-  let foundProduct = basket.find((p) => p.id == product);
-  let qtyInnerTxt = quantityInner.querySelector('p');
+  console.log(basket);
+  let foundProduct = basket.find(
+    (p) => p.id == product && p.selectedColors == color
+  );
+  let qtyInnerTxt = quantityInner.querySelector("p");
 
   if (foundProduct != undefined) {
     selectedQty = foundProduct.selectedQty;
@@ -54,25 +57,30 @@ function changeQuantity(product, quantity, quantityInner) {
 }
 
 //Ajout aux totaux
-function addToTotal(product, qty) {
-    if(qty){
-        qty = parseInt(qty, 10);
-    }
-    articleItem[product._id] = { qty, price: product.price};
-    calculateTotal();
+function addToTotal(product, qty, color) {
+  if (qty) {
+    qty = parseInt(qty, 10);
+  }
+  articleItem[product._id + color] = {
+    qty,
+    price: product.price,
+    color: color,
+  };
+  calculateTotal();
 }
 
 //Calcul des totaux
-function calculateTotal(){
-    let total = 0;
-    let qty = 0;
-    Object.values(articleItem).forEach(product => {
-        total += product.qty * product.price;
-        qty += product.qty;
-    });
-    
-    totalQtySelector.innerText = qty;
-    totalPriceSelector.innerText = total;
+function calculateTotal() {
+  let total = 0;
+  let qty = 0;
+
+  Object.values(articleItem).forEach((product) => {
+    total += product.qty * product.price;
+    qty += product.qty;
+  });
+
+  totalQtySelector.innerText = qty;
+  totalPriceSelector.innerText = total;
 }
 
 //Génération du panier
@@ -101,31 +109,38 @@ function generateBasket(allItems) {
 
                 <div class="cart__item__content">
                     <div class="cart__item__content__description">
-                    <h2>${fullProduct.name}</h2>
-                    <p>${product.selectedColors}</p>
-                    <p>${fullProduct.price} €</p>
-                    </div>
-                    <div class="cart__item__content__settings">
-                    <div class="cart__item__content__settings__quantity">
-                        <p>Qté : ${product.selectedQty}</p>
-                        <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.selectedQty}">
-                    </div>
-                    <div class="cart__item__content__settings__delete">
-                        <p class="deleteItem">Supprimer</p>
-                    </div>
+                      <h2>${fullProduct.name}</h2>
+                      <p>${product.selectedColors}</p>
+                      <p>${fullProduct.price} €</p>
+                      </div>
+                      <div class="cart__item__content__settings">
+                      <div class="cart__item__content__settings__quantity">
+                          <p>Qté : ${product.selectedQty}</p>
+                          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.selectedQty}">
+                      </div>
+                      <div class="cart__item__content__settings__delete">
+                          <p class="deleteItem">Supprimer</p>
+                      </div>
                     </div>
                 </div>
             </article>
     `;
 
     //Input quantité
-    const qtyInner = a.querySelector('.cart__item__content__settings__quantity');
-    a.querySelector('input').addEventListener('change', (event) => {
-        changeQuantity(product.id, event.target.value, qtyInner);
-        addToTotal(fullProduct, event.target.value);
+    const qtyInner = a.querySelector(
+      ".cart__item__content__settings__quantity"
+    );
+    a.querySelector("input").addEventListener("change", (event) => {
+      changeQuantity(
+        product.id,
+        event.target.value,
+        qtyInner,
+        product.selectedColors
+      );
+      addToTotal(fullProduct, event.target.value, product.selectedColors);
     });
 
-    addToTotal(fullProduct, product.selectedQty);
+    addToTotal(fullProduct, product.selectedQty, product.selectedColors);
     itemsEl.appendChild(a);
   });
 
@@ -136,7 +151,8 @@ function generateBasket(allItems) {
     const inputItem = input.closest(".cart__item");
     input.addEventListener("click", () => {
       const productId = inputItem.dataset.id;
-      removeFromBasket(productId);
+      const productColor = inputItem.dataset.color;
+      removeFromBasket(productId, productColor);
       inputItem.remove();
     });
   });
@@ -218,36 +234,42 @@ function validate() {
     });
 
     let body = {
-      'contact' : contact, 
-      'products': productID
-    }
+      contact: contact,
+      products: productID,
+    };
 
     //Envoi du panier en confirmation via un POST
     let orderId = "";
 
-    function orderConfirmation (order) {
+    function orderConfirmation(order) {
       const confirmation = `./confirmation.html?id=${order}`;
       window.location = confirmation;
     }
 
     fetch(apiOrder, {
-    method: "POST",
-    headers: {
-      Accept: 'application/json',
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-    cache: 'default' 
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      cache: "default",
     })
-    .then((response) => response.json())
-    .then((data) => {
-      orderId = data.orderId;
-      orderConfirmation(orderId);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        orderId = data.orderId;
+        orderConfirmation(orderId);
+      });
   }
 }
 
 order.addEventListener("click", (e) => {
+  basket = getBasket();
+  basket = JSON.stringify(basket);
   e.preventDefault();
-  validate();
+  if (basket === "[]") {
+    alert("Le panier est vide !");
+  } else {
+    validate();
+  }
 });
